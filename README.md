@@ -1,78 +1,53 @@
 # Parish Health Explorer
 
-A static lookup tool for the 209 parishes of the **Archdiocese of Detroit**, built
-from the archdiocese's own public restructuring workbooks. It accompanies the free
-Substack series in `Substack Articles/detroit-parish-health/`, which is where the
-data pipeline lives.
+Look up any of the 209 parishes in the Archdiocese of Detroit and see its finances,
+attendance, sacraments, and building condition, using the numbers the archdiocese
+itself published in its parish restructuring workbooks.
 
-Plain HTML/CSS/JS — no framework, no build step, no dependencies.
+**Use it:** https://financeprofessormckee.github.io/Parish-Health-Explorer/
 
-## Views
+No login, no account, nothing about you is stored or tracked. Just type a parish
+or city name and go.
 
-| Tab | What it does |
-|---|---|
-| **Find a parish** | Type-ahead over all 209 parishes (and their cities) → a scorecard: money, balance sheet, people, decade change, the five distress flags as an explicit checklist, and planning-area context. Every figure is shown against the archdiocese-wide median. |
-| **All 209** | Sortable, filterable table (planning area, finances, attendance bucket, flag count) with a **Download this view as CSV** button. |
-| **Planning areas** | The 15 areas compared — inline bar charts plus a full table. |
-| **About the numbers** | What each measure means, what the at-risk flags are and explicitly are not, and the caveats. |
+## What's here
 
-## Data
+- **Find a parish** — search by name or city and get a scorecard: money in and
+  out, cash and debt, repair costs, attendance, sacraments, how things have
+  changed over the last decade, and a five-point checklist of financial and
+  demographic warning signs. Every number is shown next to the archdiocese-wide
+  typical value, so you can tell what's ordinary from what's unusual.
+- **All 209** — every parish in one sortable, filterable table. Filter by
+  planning area, finances, attendance, or how many warning flags a parish
+  raises. Download the table you've built as a CSV.
+- **Planning areas** — the archdiocese's 15 planning areas compared side by
+  side.
+- **About the numbers** — what each measure means, exactly what the warning
+  flags do and don't tell you, and where the data could be imperfect.
 
-Everything comes from one file, `data/parishes.json` (~200–400 KB): all 209 parish
-records plus a `meta` block with archdiocese-wide medians, attendance buckets and the
-planning-area rollups. One fetch, no per-parish requests.
+## A word about the flags
 
-Regenerate it after re-running the analysis pipeline:
+The five-flag checklist is a plain count of published warning signs (ran a
+deficit, worsening trend, more funerals than baptisms, a mostly empty building,
+thin cash reserves), not a prediction about any parish's future. The "About the
+numbers" tab in the tool says this too, and it's worth reading before drawing
+conclusions from a high score.
 
-```
-cd "../../Substack Articles/detroit-parish-health"
-python analyze.py            # rebuilds output/analysis/parish_master.csv
-python build_webtool_data.py # writes ../../Coding Projects/Parish Health Explorer/data/parishes.json
-```
+## The series
 
-`build_webtool_data.py` reuses `analyze.py`'s parish-name matcher, because the
-archdiocese labels the same parish differently in its comparison tables and its
-listing page.
+This tool goes with a four-part Substack series on parish health in the
+archdiocese:
 
-## Run locally
+1. [Opening the books on Detroit's parishes](https://financeprofessormckee.substack.com/p/opening-the-books-on-detroits-parishes)
+2. [6,034 funerals. 5,682 baptisms.](https://financeprofessormckee.substack.com/p/opening-the-books-on-detroits-parishes-c85)
+3. [Empty pews: 127 parishes draw under 600](https://financeprofessormckee.substack.com/p/opening-the-books-on-detroits-parishes-936)
+4. Part 4 (the at-risk ranking and this tool's official launch) — coming soon
 
-`fetch()` needs HTTP, so opening `index.html` from the filesystem will not work
-(the page says so if you try):
+## Where the numbers come from
 
-```
-python -m http.server 8000
-# then open http://localhost:8000/
-```
+The Archdiocese of Detroit published a 57-page workbook for each of its 209
+parishes as part of its restructuring process. This tool pulls the comparable
+figures out of all 209 and puts them in one place, so you can see your parish
+next to the ones around it instead of buried in its own PDF.
 
-## Analytics
-
-Anonymous, cookieless [GoatCounter](https://www.goatcounter.com/) (account
-`epzmckee`), following the same pattern as the other tools here: the script tag in
-`<head>` plus a guarded `trackEvent()` in `app.js` that no-ops when GoatCounter is
-absent and never throws. Events: `view-<tab>`, `search-parish`, `view-parish`,
-`sort-<column>`, `filter-<type>`, `download-csv`. No parish name is ever sent — a
-parish view is counted, not identified.
-
-GoatCounter ignores `localhost`, so locally the check is "script present,
-`trackEvent` defined, no console errors"; real counts appear only once deployed.
-
-## Deploy to GitHub Pages
-
-Copy this folder into a public repo, then in **Settings → Pages** set
-**Source** to *Deploy from a branch* and pick the branch and root. No build step.
-
-## Accessibility
-
-Built to WCAG 2.2 AA practice, consistent with the teaching tools in this folder,
-though as a personal-publication tool it does not carry the formal conformance
-report those require (see `../CLAUDE.md` for which tools do):
-
-- semantic landmarks and headings; a skip link
-- a real ARIA tabs pattern (arrow/Home/End keys) and combobox
-  (`aria-expanded` / `aria-activedescendant`, arrow keys, Enter, Escape)
-- real `<table>` markup with `<th scope>` and `aria-sort` on sortable columns
-- status never encoded by colour alone — every badge and flag pairs colour with a
-  glyph **and** a word
-- ≥44px targets, visible focus rings, light and dark themes both contrast-checked
-- wide tables scroll inside their own container so the page never scrolls sideways
-- `prefers-reduced-motion` respected
+Nothing here is estimated or modeled. Where a workbook left a figure blank,
+this tool leaves it blank too.
