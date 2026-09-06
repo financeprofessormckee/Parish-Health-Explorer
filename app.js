@@ -411,13 +411,18 @@
     ]));
 
     // --- at-risk flags, as an explicit checklist rather than a grade
+    var runwayKnown = p.low_runway_flag !== null && p.low_runway_flag !== undefined;
+    var runwayPositiveNet = !runwayKnown && isNum(p.avg_net_3yr) && p.avg_net_3yr >= 0;
     var flags = [
       ["Ran a deficit in FY24/25", p.deficit_flag],
       ["Three-year net trend is worsening", p.net_worsening_flag],
       ["More funerals than baptisms",
         isNum(p.funerals) && isNum(p.baptisms) ? p.funerals > p.baptisms : null],
       ["Fills fewer than 30% of its seats", p.low_utilization_flag],
-      ["Under five years of cash", p.low_runway_flag],
+      ["Under five years of cash", runwayPositiveNet ? false : p.low_runway_flag,
+        runwayPositiveNet
+          ? "no — its 3-year average net is positive, so there's no cash burn to measure a runway against"
+          : null],
     ];
     var list = el("ul", "flag-list");
     flags.forEach(function (f) {
@@ -426,7 +431,7 @@
       var li = el("li", "flag " + (yes ? "flag--yes" : known ? "flag--no" : ""));
       li.appendChild(el("span", "flag__mark", known ? (yes ? "✗" : "✓") : "?"));
       li.appendChild(el("span", null,
-        f[0] + " — " + (known ? (yes ? "yes" : "no") : "not known")));
+        f[0] + " — " + (f[2] || (known ? (yes ? "yes" : "no") : "not known"))));
       list.appendChild(li);
     });
     var risk = el("section", "card");
