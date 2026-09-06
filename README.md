@@ -38,8 +38,8 @@ This tool goes with a four-part Substack series on parish health in the
 archdiocese:
 
 1. [Opening the books on Detroit's parishes](https://financeprofessormckee.substack.com/p/opening-the-books-on-detroits-parishes)
-2. [6,034 funerals. 5,682 baptisms.](https://financeprofessormckee.substack.com/p/opening-the-books-on-detroits-parishes-c85)
-3. [Empty pews: 127 parishes draw under 600](https://financeprofessormckee.substack.com/p/opening-the-books-on-detroits-parishes-936)
+2. [Where parishes are crying and where they are dying.](https://financeprofessormckee.substack.com/p/opening-the-books-on-detroits-parishes-c85)
+3. [The $148 million deferred maintenance bill and the crisis of empty pews.](https://financeprofessormckee.substack.com/p/opening-the-books-on-detroits-parishes-936)
 4. Part 4 (the at-risk ranking and this tool's official launch) — coming soon
 
 ## Where the numbers come from
