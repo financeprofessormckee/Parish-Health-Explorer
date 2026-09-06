@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parish Health Explorer — Archdiocese of Detroit</title>
+  <meta name="description"
+        content="Look up the finances, attendance and sacramental trends of any of the 209 parishes of the Archdiocese of Detroit, from the archdiocese's own published restructuring workbooks." />
+  <link rel="stylesheet" href="styles.css?v=1" />
+  <script src="app.js?v=1" defer></script>
+  <!-- Anonymous, cookieless usage counts (GoatCounter). -->
+  <script data-goatcounter="https://epzmckee.goatcounter.com/count"
+          async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="page-header">
+    <div class="page-header__text">
+      <h1>Parish Health Explorer</h1>
+      <p class="page-header__subtitle">
+        The 209 parishes of the Archdiocese of Detroit, as the archdiocese itself
+        reported them. Fiscal year 2024/25.
+      </p>
+    </div>
+    <button id="themeToggle" type="button" class="theme-toggle" aria-pressed="false">
+      🌙 Dark
+    </button>
+  </header>
+
+  <nav class="tabs" aria-label="Views">
+    <ul class="tabs__list" role="tablist">
+      <li role="none">
+        <button type="button" role="tab" id="tab-lookup" class="tab"
+                aria-controls="panel-lookup" aria-selected="true">Find a parish</button>
+      </li>
+      <li role="none">
+        <button type="button" role="tab" id="tab-rankings" class="tab"
+                aria-controls="panel-rankings" aria-selected="false" tabindex="-1">All 209</button>
+      </li>
+      <li role="none">
+        <button type="button" role="tab" id="tab-areas" class="tab"
+                aria-controls="panel-areas" aria-selected="false" tabindex="-1">Planning areas</button>
+      </li>
+      <li role="none">
+        <button type="button" role="tab" id="tab-about" class="tab"
+                aria-controls="panel-about" aria-selected="false" tabindex="-1">About the numbers</button>
+      </li>
+    </ul>
+  </nav>
+
+  <main class="app" id="main">
+    <p id="loading" class="status" role="status">Loading parish data…</p>
+
+    <!-- ------------------------------------------------ parish lookup -->
+    <section id="panel-lookup" class="panel" role="tabpanel" aria-labelledby="tab-lookup" hidden>
+      <div class="search">
+        <label class="search__label" for="parishSearch">Search for a parish</label>
+        <p id="searchHelp" class="search__help">
+          Type a parish or city name, then choose from the list.
+        </p>
+        <div class="search__combo">
+          <input id="parishSearch" type="text" autocomplete="off" spellcheck="false"
+                 role="combobox" aria-expanded="false" aria-autocomplete="list"
+                 aria-controls="parishListbox" aria-describedby="searchHelp"
+                 placeholder="e.g. Divine Child, or Dearborn" />
+          <button type="button" id="searchClear" class="search__clear" hidden>
+            Clear<span class="visually-hidden"> search</span>
+          </button>
+        </div>
+        <ul id="parishListbox" class="search__listbox" role="listbox"
+            aria-label="Matching parishes" hidden></ul>
+        <p id="searchStatus" class="visually-hidden" role="status"></p>
+      </div>
+
+      <div id="scorecard" class="scorecard" hidden></div>
+      <p id="lookupEmpty" class="status">
+        Pick a parish to see its scorecard. Every figure is shown next to the
+        archdiocese-wide median so you can tell typical from unusual.
+      </p>
+    </section>
+
+    <!-- ---------------------------------------------------- rankings -->
+    <section id="panel-rankings" class="panel" role="tabpanel" aria-labelledby="tab-rankings" hidden>
+      <div class="filters">
+        <h2 class="filters__title">Filter</h2>
+        <div class="filters__row">
+          <div class="control">
+            <label for="filterArea">Planning area</label>
+            <select id="filterArea"><option value="">All areas</option></select>
+          </div>
+          <div class="control">
+            <label for="filterFinance">Finances</label>
+            <select id="filterFinance">
+              <option value="">All parishes</option>
+              <option value="deficit">Ran a deficit</option>
+              <option value="surplus">Ran a surplus</option>
+              <option value="lowrunway">Under 5 years of cash</option>
+              <option value="nocushion">Deficit and under 5 years of cash</option>
+            </select>
+          </div>
+          <div class="control">
+            <label for="filterAttendance">Mass attendance</label>
+            <select id="filterAttendance">
+              <option value="">Any attendance</option>
+              <option value="&lt;250">Under 250</option>
+              <option value="250-599">250–599</option>
+              <option value="600-999">600–999</option>
+              <option value="1000+">1,000 or more</option>
+            </select>
+          </div>
+          <div class="control">
+            <label for="filterFlags">At-risk flags</label>
+            <select id="filterFlags">
+              <option value="">Any number</option>
+              <option value="1">1 or more</option>
+              <option value="2">2 or more</option>
+              <option value="3">3 or more</option>
+              <option value="4">4 or more</option>
+              <option value="5">All 5</option>
+            </select>
+          </div>
+        </div>
+        <div class="filters__actions">
+          <p id="rankCount" class="filters__count" role="status"></p>
+          <button type="button" id="downloadCsv" class="button">Download this view as CSV</button>
+        </div>
+      </div>
+
+      <!-- tabindex makes the scroller reachable without a mouse (WCAG 2.1.1) -->
+      <div class="table-scroll" role="region" aria-label="Parish rankings table" tabindex="0">
+        <table id="rankTable" class="data-table">
+          <caption class="visually-hidden">
+            All parishes matching the current filters. Use the column buttons to sort.
+          </caption>
+          <thead><tr id="rankHead"></tr></thead>
+          <tbody id="rankBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------- planning areas -->
+    <section id="panel-areas" class="panel" role="tabpanel" aria-labelledby="tab-areas" hidden>
+      <h2>The 15 planning areas compared</h2>
+      <p class="panel__intro">
+        The archdiocese groups its parishes into 15 planning areas. Restructuring
+        decisions are made area by area, so this is the level at which a parish's
+        neighbours matter.
+      </p>
+      <div id="areaCharts" class="area-charts"></div>
+      <div class="table-scroll" role="region" aria-label="Planning areas table" tabindex="0">
+        <table id="areaTable" class="data-table">
+          <caption class="visually-hidden">Planning areas compared</caption>
+          <thead><tr id="areaHead"></tr></thead>
+          <tbody id="areaBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------------- about -->
+    <section id="panel-about" class="panel prose" role="tabpanel" aria-labelledby="tab-about" hidden>
+      <h2>About the numbers</h2>
+      <p>
+        Everything here is extracted from the Archdiocese of Detroit's own
+        <a id="sourceLink" href="https://restructuring.aod.org/parish-workbooks">parish
+        restructuring workbooks</a> — one public PDF per parish. Nothing is estimated,
+        modelled or supplied from another source. Figures are fiscal year 2024/25
+        unless labelled otherwise.
+      </p>
+
+      <h3>What the measures mean</h3>
+      <dl>
+        <dt>Net surplus / deficit</dt>
+        <dd>Revenue minus expenses for the fiscal year, as reported to the archdiocese.</dd>
+        <dt>Months of runway</dt>
+        <dd>
+          Unrestricted cash and savings divided by one month of the parish's own
+          spending. It answers the question a bare deficit can't: how long could this
+          parish keep going without changing anything? Restricted savings and
+          endowments are excluded, because the parish cannot freely spend them.
+        </dd>
+        <dt>Seating utilization</dt>
+        <dd>
+          Mass attendance as a share of seating capacity per Mass, as the workbooks
+          report it.
+        </dd>
+        <dt>Funerals per baptism</dt>
+        <dd>
+          A parish burying more people than it baptizes is shrinking from the inside,
+          regardless of its balance sheet.
+        </dd>
+        <dt>Deferred maintenance</dt>
+        <dd>
+          The total estimated cost of repairs identified in the parish's property
+          condition evaluation. Blank means no evaluation has been completed — which
+          is not the same as no repairs needed.
+        </dd>
+        <dt>Decade change</dt>
+        <dd>
+          Percent change 2015–2024, as printed in the workbook. Blank where the 2015
+          figure was zero and the change is undefined.
+        </dd>
+      </dl>
+
+      <h3>The at-risk flags</h3>
+      <p>
+        Five yes/no signals of distress, counted rather than weighted so the result is
+        always explainable: the parish ran a deficit; its three-year net trend is
+        worsening; it held more funerals than baptisms; it fills fewer than 30% of its
+        seats; and it holds under five years (60 months) of cash.
+      </p>
+      <p class="callout">
+        <strong>This is a distress ranking, not a prediction.</strong> It measures what
+        the published numbers say about a parish's position today. It does not know
+        anything about the archdiocese's intentions, a parish's plans, its people, or
+        its role in its neighbourhood — and no parish should be read as "closing"
+        because it scores highly here.
+      </p>
+
+      <h3>Caveats</h3>
+      <ul>
+        <li>
+          Parish names in the archdiocese's comparison tables differ slightly from its
+          own listing page (one calls it "Blessed Sacrament Cathedral", the other
+          "Cathedral of the Most Blessed Sacrament"). Records are matched on planning
+          area plus name; a handful of near-identical names may be imperfectly joined.
+        </li>
+        <li>
+          Demographic figures (median income, share of Catholic households, median age)
+          are reported for the whole planning area, not the individual parish.
+        </li>
+        <li>
+          A blank is a blank: where the workbook printed nothing, "N/A" or "--", nothing
+          is shown here. Blanks are never treated as zero.
+        </li>
+      </ul>
+      <p id="generated" class="status"></p>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <p>
+      Built from public data for a free Substack series on parish health. Source:
+      <a href="https://restructuring.aod.org/parish-workbooks">restructuring.aod.org</a>.
+    </p>
+  </footer>
+</body>
+</html>
