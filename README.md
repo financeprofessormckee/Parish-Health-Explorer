@@ -11,17 +11,17 @@ or city name and go.
 
 ## What's here
 
-- **Find a parish** — search by name or city and get a scorecard: money in and
+- **Find a parish**: search by name or city and get a scorecard: money in and
   out, cash and debt, repair costs, attendance, sacraments, how things have
   changed over the last decade, and a five-point checklist of financial and
   demographic warning signs. Every number is shown next to the archdiocese-wide
   typical value, so you can tell what's ordinary from what's unusual.
-- **All 209** — every parish in one sortable, filterable table. Filter by
+- **All 209**: every parish in one sortable, filterable table. Filter by
   planning area, finances, attendance, or how many warning flags a parish
   raises. Download the table you've built as a CSV.
-- **Planning areas** — the archdiocese's 15 planning areas compared side by
+- **Planning areas**: the archdiocese's 15 planning areas compared side by
   side.
-- **About the numbers** — what each measure means, exactly what the warning
+- **About the numbers**: what each measure means, exactly what the warning
   flags do and don't tell you, and where the data could be imperfect.
 
 ## A word about the flags
